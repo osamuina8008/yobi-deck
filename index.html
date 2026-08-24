@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>予備デッキ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+  :root{--paper:#EDEDE7;--surface:#FCFCFA;--ink:#1C2026;--ink-soft:#5E5A50;--ink-faint:#8B8578;
+    --line:#DBD7CD;--shu:#BC3B2C;--ai:#2F5D8C;--shadow:0 1px 2px rgba(28,32,38,.05),0 12px 30px rgba(28,32,38,.08)}
+  @media (prefers-color-scheme:dark){:root{--paper:#14161B;--surface:#1C2027;--ink:#ECEAE3;--ink-soft:#A7A296;
+    --ink-faint:#77726A;--line:#2C313A;--shu:#E0705F;--ai:#6FA3D6;--shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.4)}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);
+    font-family:"Zen Kaku Gothic New",-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.75;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:28px}
+  h1{font-family:"Shippori Mincho",serif;font-size:clamp(26px,5vw,38px);margin:0;letter-spacing:.04em;text-align:center}
+  .sub{color:var(--ink-faint);font-size:14px;text-align:center;margin:-16px 0 4px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:720px;width:100%}
+  a.card{text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:26px 24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;transition:.15s}
+  a.card:hover{transform:translateY(-3px)}
+  .seal{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;color:#fff;font-weight:700;
+    font-family:"Shippori Mincho",serif;font-size:22px}
+  .ronbun .seal{background:var(--shu)} .tanto .seal{background:var(--ai)}
+  a.card h2{font-family:"Shippori Mincho",serif;font-size:20px;margin:4px 0 0}
+  a.card p{margin:0;font-size:13px;color:var(--ink-soft)}
+  a.card .go{margin-top:6px;font-size:13px;font-weight:700}
+  .ronbun .go{color:var(--shu)} .tanto .go{color:var(--ai)}
+  footer{font-size:12px;color:var(--ink-faint);text-align:center;max-width:560px}
+</style>
+</head>
+<body>
+  <div>
+    <h1>予備デッキ</h1>
+    <p class="sub">令和の予備試験 過去問を、隙間時間に前へ。</p>
+  </div>
+  <div class="cards">
+    <a class="card ronbun" href="ronbun.html">
+      <span class="seal">答</span>
+      <h2>答案デッキ（論文）</h2>
+      <p>令和元年〜7年の論文式 全63問。問題文を見ながら6ステップで構成→起案→復習。出題傾向の社会的フック分析つき。</p>
+      <span class="go">論文を開く →</span>
+    </a>
+    <a class="card tanto" href="tanto.html">
+      <span class="seal">短</span>
+      <h2>短答デッキ（短答）</h2>
+      <p>令和7年の短答式 95問。右に問題・左に解答解説。正解自動採点と「できた/曖昧/できない」で弱点を回す。</p>
+      <span class="go">短答を開く →</span>
+    </a>
+  </div>
+  <footer>演習データは各端末のブラウザ内にのみ保存されます（サーバー送信なし）。問題文・正解は法務省の公表資料に基づきます。</footer>
+</body>
+</html>
