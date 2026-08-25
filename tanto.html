@@ -207,6 +207,7 @@
   <div class="btnrow">
     <button class="iconbtn" id="homeBtn" title="目次（年度→科目）">🏠 目次</button>
     <button class="iconbtn accent" id="listBtn">☰ 一覧</button>
+    <button class="iconbtn" id="pdfBtn" title="公式PDFをその場で表示">📄 PDF</button>
     <button class="iconbtn" id="trendBtn">📈 傾向</button>
     <button class="iconbtn" id="dataBtn" title="バックアップ">⇅</button>
     <button class="iconbtn" id="themeBtn" title="表示モード">◐</button>
@@ -239,6 +240,19 @@
 </main>
 
 <div class="footnote">令和元〜令和7年 予備試験 短答式（法律7科目・計<b id="qCount"></b>問）を収録。正解・配点は法務省公表データ準拠。演習状態は<b>この端末のブラウザ内のみ</b>に保存。</div>
+
+<dialog id="pdfDialog" style="max-width:min(1100px,96vw);width:96vw">
+  <div class="modal-h" style="padding:12px 18px 8px">
+    <span class="seal" style="width:26px;height:26px;font-size:12px">📄</span>
+    <h2 style="font-size:16px" id="pdfTitle">公式問題PDF</h2>
+    <a id="pdfOpen" href="#" target="_blank" rel="noopener noreferrer" class="ghost" style="text-decoration:none">↗ 別タブ</a>
+    <button class="ghost" onclick="this.closest('dialog').close()">閉じる</button>
+  </div>
+  <div style="padding:0 12px 8px">
+    <p style="font-size:11.5px;color:var(--ink-faint);margin:0 0 8px;line-height:1.6">法務省公表の科目まとめ短答PDF（例：憲法・行政法）。この設問の該当ページまでスクロールしてください。正解PDFは各問の「正解PDF↗」から。</p>
+    <iframe id="pdfFrame" title="公式問題PDF" style="width:100%;height:74vh;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)"></iframe>
+  </div>
+</dialog>
 
 <dialog id="listDialog">
   <div class="modal-h"><span class="seal" style="width:26px;height:26px;font-size:12px">選</span><h2>問題一覧</h2><button class="ghost" onclick="this.closest('dialog').close()">閉じる</button></div>
@@ -477,6 +491,19 @@ function renderTrend(){
   <p style="font-size:11.5px;color:var(--ink-faint)">※ 図・別紙を含む問題（現在 ${TANTO_SEED.filter(p=>p.figure).length} 問）は図がテキスト化できないため、公式PDFリンクを併記しています。</p>`;
 }
 $("#trendBtn").onclick=()=>{renderTrend();$("#trendDialog").showModal();};
+
+/* ---------- 公式PDFビューア ---------- */
+$("#pdfBtn").onclick=()=>{
+  const p=cur();
+  if(!p||!p.source){alert("この問題には公式PDFの出典がありません。");return;}
+  const m=p.source.match(/content\/(\d+)\.pdf/);
+  const local=m?`pdfs/${m[1]}.pdf`:p.source;
+  $("#pdfTitle").textContent=`${p.yearLabel} ${p.subject} 第${p.qno}問 ｜ 公式PDF`;
+  $("#pdfOpen").href=p.source;
+  $("#pdfFrame").src=local+"#view=FitH";
+  $("#pdfDialog").showModal();
+};
+$("#pdfDialog").addEventListener("close",()=>{$("#pdfFrame").src="";});
 
 /* ---------- backup ---------- */
 const dataDlg=$("#dataDialog");
