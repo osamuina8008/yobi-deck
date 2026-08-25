@@ -259,6 +259,7 @@
   <div class="btnrow">
     <button class="iconbtn" id="homeBtn" title="目次（年度→科目）">🏠 目次</button>
     <button class="iconbtn accent" id="listBtn">☰ 一覧</button>
+    <button class="iconbtn" id="pdfBtn" title="公式PDFをその場で表示">📄 PDF</button>
     <button class="iconbtn" id="trendBtn">📈 傾向</button>
     <button class="iconbtn" id="editBtn" title="この問題を編集">✎</button>
     <button class="iconbtn primary" id="newBtn" title="自作問題を追加">＋</button>
@@ -305,6 +306,20 @@
 </main>
 
 <div class="footnote">演習データは <b>この端末のブラウザ内だけ</b> に保存（サーバー送信なし）。バックアップは <b>⇅</b>、Obsidian書き出しは <b>📝</b>。問題文の著作物性ある解説等は各自で追記してください。</div>
+
+<!-- 公式PDFビューア -->
+<dialog id="pdfDialog" style="max-width:min(1100px,96vw);width:96vw">
+  <div class="modal-h" style="padding:12px 18px 8px">
+    <span class="seal" style="width:26px;height:26px;font-size:13px">📄</span>
+    <h2 style="font-size:16px" id="pdfTitle">公式問題PDF</h2>
+    <a id="pdfOpen" href="#" target="_blank" rel="noopener noreferrer" class="ghost" style="text-decoration:none">↗ 別タブ</a>
+    <button class="ghost" onclick="this.closest('dialog').close()">閉じる</button>
+  </div>
+  <div style="padding:0 12px 8px">
+    <p style="font-size:11.5px;color:var(--ink-faint);margin:0 0 8px;line-height:1.6">法務省公表の科目まとめPDF（例：憲法・行政法）です。この問題の該当ページまでスクロールしてください。表示されない場合は「別タブ」から。</p>
+    <iframe id="pdfFrame" title="公式問題PDF" style="width:100%;height:74vh;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)"></iframe>
+  </div>
+</dialog>
 
 <!-- 問題一覧 -->
 <dialog id="listDialog">
@@ -527,6 +542,34 @@ function renderRefs(host,p){
   box.appendChild(list);
   box.appendChild(el2(`<div class="refnote">法令は e-Gov（現行版）へ、出題趣旨は法務省の該当年ページへ、判例は裁判所の検索へ。<b>e-Govは常に現行法</b>なので、出題当時との差分に注意。特定の判例・基本書は各自で追記してください。</div>`));
   host.appendChild(box);
+  renderMediaRefs(host,p);
+}
+// 動画・音声で復習（年度＋科目で YouTube 検索を自動生成。特定動画の有無は保証しないが、検索は常に開ける）
+function renderMediaRefs(host,p){
+  if(!p)return;
+  const yl=p.official?(p.yearLabel||""):"";
+  const subj=p.subject||"";
+  const tag=(p.tags&&p.tags.length)?p.tags[0]:"";
+  const yt=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+  // メンバー登録済みチャンネル（チャンネル内検索で科目・論点にジャンプ）
+  const chYasuda="https://www.youtube.com/channel/UCshd9p8ioH5VDAlXIfVvJ8A/search?query=";
+  const chNana="https://www.youtube.com/@nanahozensho/search?query=";
+  const q1=encodeURIComponent(`${subj} ${tag}`.trim());
+  const q2=encodeURIComponent(subj);
+  const chips=[
+    {k:"🎥 安田先生",label:`${subj}${tag?"・"+tag:""}`,url:chYasuda+q1},
+    {k:"📚 七法全書",label:`${subj}`,url:chNana+q2},
+    {k:"🎧 聞き流し",label:`${subj} 音声`,url:yt(`予備試験 ${subj} 聞き流し 論点`)},
+    {k:"🎬 一般検索",label:`${yl} 予備 ${subj}`.trim(),url:yt(`${yl} 予備試験 ${subj} 過去問 解説`)},
+  ];
+  const box=document.createElement("div");box.className="refbox";
+  box.innerHTML=`<div class="rlab">🎧 動画・音声で復習（自動検索）</div>`;
+  const list=document.createElement("div");list.className="reflist";
+  chips.forEach(r=>{const a=document.createElement("a");a.className="refchip";a.href=r.url;a.target="_blank";a.rel="noopener noreferrer";
+    a.innerHTML=`<span class="k">${esc(r.k)}</span>${esc(r.label)} ↗`;list.appendChild(a);});
+  box.appendChild(list);
+  box.appendChild(el2(`<div class="refnote"><b>安田先生・七法全書のチャンネル内</b>を科目名で直接検索します（メンバー登録済みで視聴自由）。見つからない時は「一般検索」、電車・通勤は<b>聞き流し</b>が便利。良い動画は「＋資料を追加」で <b>動画</b> として貼れば次回すぐ開けます。</div>`));
+  host.appendChild(box);
 }
 function el2(html){const d=document.createElement("div");d.innerHTML=html;return d.firstElementChild;}
 function renderSources(host,ws){
@@ -636,6 +679,19 @@ function renderTrend(){
   <p style="font-size:11.5px;color:var(--ink-faint)">※ 本分析は収録した令和元〜7年の公表問題の記述に基づく整理です。断定的な“ヤマ当て”ではなく、傾向の把握用としてご利用ください。</p>`;
 }
 $("#trendBtn").onclick=()=>{renderTrend();$("#trendDialog").showModal();};
+
+/* ---------- 公式PDFビューア ---------- */
+$("#pdfBtn").onclick=()=>{
+  const p=curProblem();
+  if(!p||!p.source){alert("この問題には公式PDFの出典がありません（自作問題など）。");return;}
+  const m=p.source.match(/content\/(\d+)\.pdf/);
+  const local=m?`pdfs/${m[1]}.pdf`:p.source;
+  $("#pdfTitle").textContent=`${p.official?p.yearLabel:"自作"} ${p.subject} ｜ 公式PDF`;
+  $("#pdfOpen").href=p.source;
+  $("#pdfFrame").src=local+"#view=FitH";
+  $("#pdfDialog").showModal();
+};
+$("#pdfDialog").addEventListener("close",()=>{$("#pdfFrame").src="";});
 
 /* ---------- edit / add ---------- */
 const dlg=$("#probDialog");let editingId=null;
